@@ -18,7 +18,7 @@
       <tbody>
         <template v-for="item in orders" :key="item.id">
           <tr v-if="orders.length" :class="{ 'text-secondary': !item.is_paid }">
-            <td>{{ item.create_at }}</td>
+            <td>{{ new Date(item.create_at).toLocaleString() }}</td>
             <td>{{ item.user.name }}</td>
             <td>{{ item.user.tel }}</td>
             <td>
@@ -97,17 +97,7 @@ export default {
       axios
         .get(api)
         .then((res) => {
-          // this.orders = res.data.orders;
-          this.orders = res.data.orders.map((item) => {
-            // 將 item 的 create_at 轉換為格式化後的時間
-            const formattedDate = new Date(item.create_at).toLocaleString();
-
-            // 返回一個新的對象，保留 item 的其他屬性，並修改 create_at
-            return {
-              ...item,
-              create_at: formattedDate,
-            };
-          });
+          this.orders = res.data.orders;
         })
         .catch((err) => {
           alert(err.response.data.message);
