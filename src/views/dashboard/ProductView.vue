@@ -1,7 +1,9 @@
 <template>
-  <RouterView> <h2>這是後台產品列表</h2></RouterView>
   <div class="container">
-    <div class="text-end mt-4">
+    <div class="text-top mt-4">
+      <h2>商品列表</h2>
+    </div>
+    <div class="text-end">
       <button class="btn btn-primary" @click="openModal('new')">建立新的產品</button>
     </div>
     <table class="table mt-4">

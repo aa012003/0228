@@ -25,11 +25,11 @@ const routes = [
         name: 'Products',
         component: () => import('../views/front/ProductsView.vue'),
       },
+      {
+        path: '/login',
+        component: () => import('../views/front/LoginView.vue'),
+      },
     ],
-  },
-  {
-    path: '/login',
-    component: () => import('../views/front/LoginView.vue'),
   },
   {
     path: '/admin',
@@ -42,10 +42,6 @@ const routes = [
       {
         path: 'product',
         component: () => import('../views/dashboard/ProductView.vue'),
-      },
-      {
-        path: 'login',
-        component: () => import('../views/dashboard/LoginView.vue'),
       },
     ],
   },
