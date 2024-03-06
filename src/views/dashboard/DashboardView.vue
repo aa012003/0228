@@ -42,14 +42,24 @@ const { VITE_URL } = import.meta.env;
 export default {
   methods: {
     checkAdmin() {
-      axios
-        .post(`${VITE_URL}/api/user/check`)
-        .then(() => {
-          alert('登入成功');
-        })
-        .catch(() => {
-          this.$router.push('/login');
-        });
+      const token = document.cookie.replace(/(?:(?:^|.*;\s*)joyToken\s*=\s*([^;]*).*$)|^.*$/, '$1');
+      if (token) {
+        axios.defaults.headers.common.Authorization = token;
+
+        const api = `${VITE_URL}/api/user/check`;
+        axios
+          .post(api, { api_token: this.token })
+          .then(() => {
+            this.checkSuccess = true;
+          })
+          .catch((err) => {
+            alert(err.response.data.message);
+            this.$router.push('/login');
+          });
+      } else {
+        alert('您尚未登入。');
+        this.$router.push('/login');
+      }
     },
     signOut() {
       const api = `${VITE_URL}/logout`;
@@ -57,7 +67,7 @@ export default {
         .post(api)
         .then(() => {
           alert('登出成功！');
-          document.cookie = 'hexToken=; expires=; path=/';
+          document.cookie = 'joyToken=; expires=; path=/';
           this.$router.push('/');
         })
         .catch((err) => {
@@ -66,9 +76,6 @@ export default {
     },
   },
   mounted() {
-    const token = document.cookie.replace(/(?:(?:^|.*;\s*)joyToken\s*=\s*([^;]*).*$)|^.*$/, '$1');
-    axios.defaults.headers.common.Authorization = token;
-
     this.checkAdmin();
   },
 };

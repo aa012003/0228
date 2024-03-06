@@ -1,5 +1,6 @@
 // AdminOrders.vue
 <template>
+  <VueLoading :active="isLoading" :z-index="1060" />
   <div class="container">
     <table class="table mt-4">
       <thead>
@@ -33,7 +34,7 @@
             <td>
               {{ item.message }}
             </td>
-            <td class="text-right">{{ item.total }}</td>
+            <td class="text-right">{{ item.total.toLocaleString() }}</td>
             <td>
               <div class="form-check form-switch">
                 <input
@@ -78,6 +79,7 @@
 
 <script>
 import axios from 'axios';
+import Swal from 'sweetalert2';
 import OrderModal from '../../components/OrderModal.vue';
 import DelModal from '../../components/DelModal.vue';
 
@@ -87,20 +89,25 @@ export default {
   data() {
     return {
       orders: {},
+      isLoading: false,
       tempOrder: {},
       currentPage: 1,
     };
   },
   methods: {
-    getOrders() {
-      const api = `${VITE_URL}/api/${VITE_PATH}/admin/orders`;
+    getOrders(currentPage = 1) {
+      this.currentPage = currentPage;
+      const api = `${VITE_URL}/api/${VITE_PATH}/admin/orders?page=${currentPage}`;
+      this.isLoading = true;
       axios
         .get(api)
         .then((res) => {
           this.orders = res.data.orders;
+          this.isLoading = false;
         })
         .catch((err) => {
-          alert(err.response.data.message);
+          Swal.fire(err.response.data.message);
+          this.isLoading = false;
         });
     },
     openModal(item) {
@@ -109,6 +116,7 @@ export default {
       orderComponent.openModal();
     },
     updatePaid(item) {
+      this.isLoading = true;
       const api = `${VITE_URL}/api/${VITE_PATH}/admin/order/${item.id}`;
       const paid = {
         is_paid: item.is_paid,
@@ -116,12 +124,19 @@ export default {
       axios
         .put(api, { data: paid })
         .then((res) => {
+          this.isLoading = false;
           const orderComponent = this.$refs.orderModal;
           orderComponent.hideModal();
-          alert(res.data.message);
+          Swal.fire({
+            title: res.data.message,
+            icon: 'success',
+          });
+
+          this.getOrders(this.currentPage);
         })
         .catch((err) => {
-          alert(err.response.data.message);
+          this.isLoading = false;
+          Swal.fire(err.response.data.message);
         });
     },
     openDelModal(item) {
@@ -130,17 +145,20 @@ export default {
       delCompenent.openModal();
     },
     delOrder() {
+      this.isLoading = true;
       const api = `${VITE_URL}/api/${VITE_PATH}/admin/order/${this.tempOrder.id}`;
       axios
         .delete(api)
         .then(() => {
-          alert('已成功刪除');
+          this.isLoading = false;
+          Swal.fire('已成功刪除');
           const delCompenent = this.$refs.delModal;
           delCompenent.hideModal();
           this.getOrders(this.currentPage);
         })
         .catch((err) => {
-          alert(err.response.data.message);
+          this.isLoading = false;
+          Swal.fire(err.response.data.message);
         });
     },
   },

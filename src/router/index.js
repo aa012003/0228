@@ -29,6 +29,10 @@ const routes = [
         path: '/login',
         component: () => import('../views/front/LoginView.vue'),
       },
+      {
+        path: '/:pathMatch(.*)*',
+        component: () => import('../views/front/HomeView.vue'),
+      },
     ],
   },
   {
@@ -42,6 +46,10 @@ const routes = [
       {
         path: 'product',
         component: () => import('../views/dashboard/ProductView.vue'),
+      },
+      {
+        path: '/admin:pathMatch(.*)*',
+        component: () => import('../views/front/HomeView.vue'),
       },
     ],
   },

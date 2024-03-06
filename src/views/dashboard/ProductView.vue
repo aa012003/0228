@@ -21,8 +21,8 @@
         <tr v-for="item in products" :key="item.id">
           <td>{{ item.category }}</td>
           <td>{{ item.title }}</td>
-          <td class="text-end">{{ item.origin_price }}</td>
-          <td class="text-end">{{ item.price }}</td>
+          <td class="text-end">${{ item.origin_price.toLocaleString() }}</td>
+          <td class="text-end">${{ item.price.toLocaleString() }}</td>
           <td>
             <span class="text-success" v-if="item.is_enabled">啟用</span>
             <span v-else>未啟用</span>
@@ -97,6 +97,7 @@
 <script>
 import axios from 'axios';
 import { Modal } from 'bootstrap';
+import Swal from 'sweetalert2';
 import PaginationComponent from '../../components/PaginationComponent.vue';
 import ProductModal from '../../components/ProductModal.vue';
 
@@ -125,7 +126,7 @@ export default {
           this.pages = res.data.pagination;
         })
         .catch((err) => {
-          alert(err.data.message);
+          Swal.fire(err.data.message);
         });
     },
     openModal(status, item) {
@@ -156,23 +157,40 @@ export default {
         http = 'post';
       }
 
-      axios[http](url, { data: this.tempProduct }).then((res) => {
-        alert(res.data.message);
-        this.$refs.productModal.hideModal();
-        this.getProducts(); // 取得所有產品的函式
-      });
+      axios[http](url, { data: this.tempProduct })
+        .then((res) => {
+          Swal.fire(res.data.message);
+          this.$refs.productModal.hideModal();
+          this.getProducts(); // 取得所有產品的函式
+        })
+        .catch((err) => {
+          if (
+            !this.tempProduct.title
+            || !this.tempProduct.category
+            || !this.tempProduct.unit
+            || !this.tempProduct.origin_price
+            || !this.tempProduct.price
+          ) {
+            // 显示提示消息
+            const errorMessage = err.response.data.message.join('\n');
+            Swal.fire({
+              icon: 'error',
+              title: errorMessage,
+            });
+          }
+        });
     },
     delProduct() {
       const url = `${VITE_URL}/api/${VITE_PATH}/admin/product/${this.tempProduct.id}`;
       axios
         .delete(url)
         .then((res) => {
-          alert(res.data.message);
+          Swal.fire(res.data.message);
           this.delProductModal.hide();
           this.getProducts();
         })
         .catch((err) => {
-          alert(err.data.message);
+          Swal.fire(err.data.message);
         });
     },
   },
